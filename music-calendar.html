@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>音乐时代月历 · 从中世纪到今天</title>
+<style>
+:root{--bg:#1d1b2e;--card:#2a2740;--card2:#332f4d;--ink:#f3f0ff;--mute:#b9b3d6;--gold:#ffd34d}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 -apple-system,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif}
+main{max-width:640px;margin:0 auto;padding:14px 12px 70px}
+header{text-align:center;padding:10px 0 4px}
+h1{margin:4px 0;font-size:25px;line-height:1.3}
+.sub{color:var(--mute);font-size:14px}
+.card{background:var(--card);border-radius:20px;padding:14px;margin:14px 0}
+h2{font-size:19px;margin:0 0 8px}
+.banner{display:block;width:100%;border:0;text-align:left;font:inherit;color:#1d1b2e;background:linear-gradient(90deg,#ffe9a3,#ffb3c7);border-radius:16px;padding:12px 14px;min-height:56px;cursor:pointer}
+.banner b{font-size:17px}.banner small{display:block;font-size:13px;opacity:.8}
+.eras{display:flex;gap:6px;overflow-x:auto;padding:4px 0 2px;scrollbar-width:none}
+.eras button{flex:0 0 auto;border:0;border-radius:99px;padding:8px 12px;font:inherit;font-size:14px;font-weight:700;color:#1d1b2e;min-height:40px;cursor:pointer}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tabs button{flex:1;border:0;border-radius:12px;min-height:44px;font:inherit;font-weight:700;background:var(--card2);color:var(--ink);cursor:pointer}
+.tabs button.on{background:#cdb8ff;color:#1d1b2e}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wd{text-align:center;font-size:12px;color:var(--mute);padding-bottom:2px}
+.day{position:relative;border:0;border-radius:12px;min-height:66px;padding:4px 2px;font:inherit;color:var(--ink);background:var(--card2);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;cursor:pointer;overflow:hidden;transition:transform .1s}
+.day:active{transform:scale(.93)}
+.day .n{font-size:13px;font-weight:700;align-self:flex-start;padding-left:4px;line-height:1.2}
+.day .i{font-size:17px;line-height:1.2}
+.day .c{font-size:10.5px;line-height:1.2;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 2px;color:var(--mute)}
+.day .stripe{position:absolute;left:0;right:0;bottom:0;height:5px}
+.day.empty{background:transparent;cursor:default}
+.day.today{outline:3px solid #fff;outline-offset:-3px;box-shadow:0 0 14px #fff8}
+.day.today .n::after{content:" 今天";font-size:10px;color:#fff}
+.day.exam{background:linear-gradient(160deg,#ffd34d,#ff9fb8);color:#1d1b2e}
+.day.exam .c{color:#1d1b2e;font-weight:700}
+.day.past{opacity:.55}
+.hint{font-size:13px;color:var(--mute);margin:8px 2px 0}
+/* sheet */
+.mask{position:fixed;inset:0;background:#0009;opacity:0;pointer-events:none;transition:opacity .25s;z-index:5}
+.mask.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:640px;margin:0 auto;max-height:88vh;overflow-y:auto;background:var(--card);border-radius:22px 22px 0 0;padding:16px 16px 26px;transform:translateY(105%);transition:transform .3s cubic-bezier(.2,.9,.3,1.1);z-index:6;box-shadow:0 -6px 30px #0008}
+.sheet.on{transform:none}
+.sheet .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tag{display:inline-block;font-size:14px;font-weight:700;border-radius:9px;padding:3px 10px;color:#1d1b2e}
+.x{border:0;background:var(--card2);color:var(--ink);border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer;flex:0 0 auto}
+.big{font-size:44px;line-height:1;margin:10px 0 2px}
+.sheet h3{font-size:24px;margin:4px 0 0}
+.en{color:var(--mute);font-size:14px}
+.sec{background:var(--card2);border-radius:14px;padding:10px 12px;margin:10px 0}
+.sec .h{font-size:13px;font-weight:700;color:var(--mute);margin-bottom:2px}
+.sec.vio{border-left:5px solid var(--gold)}
+.nav{display:flex;gap:8px;margin-top:12px}
+.nav button{flex:1;border:0;border-radius:14px;min-height:50px;font:inherit;font-weight:700;background:#a8f0d4;color:#1d1b2e;cursor:pointer}
+.nav button:disabled{opacity:.35}
+/* story */
+details{background:var(--card);border-radius:20px;margin:14px 0;overflow:hidden}
+summary{list-style:none;padding:16px;font-weight:700;font-size:18px;cursor:pointer;min-height:56px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"▼";float:right;transition:transform .2s;color:var(--mute)}
+details[open] summary::after{transform:rotate(180deg)}
+.story{padding:0 16px 16px}.story p{margin:0 0 10px;text-indent:2em}
+.note{font-size:13px;color:var(--mute)}
+/* animation */
+.stage{width:100%;height:auto;border-radius:16px;display:block;background:#000}
+.ctrl{display:flex;gap:8px;margin-top:8px}
+.ctrl button{flex:1;border:0;border-radius:14px;min-height:48px;font:inherit;font-weight:700;cursor:pointer;background:#a9d6ff;color:#1d1b2e}
+footer{text-align:center;font-size:12px;color:var(--mute);margin-top:20px}
+footer a{color:#cdb8ff}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body><main>
+<header>
+  <div style="font-size:30px">🎻📜</div>
+  <h1>音乐时代月历</h1>
+  <div class="sub">每天一位人物,顺着时间从中世纪走到今天</div>
+</header>
+
+<button class="banner" id="banner"></button>
+
+<section class="card">
+  <div class="eras" id="eras"></div>
+  <div class="tabs" id="tabs" style="margin-top:10px"></div>
+  <div class="grid" id="grid"></div>
+  <p class="hint">点任意日期看小卡。下方彩条 = 时代颜色,白框 = 今天(吉隆坡时间)。</p>
+</section>
+
+<section class="card">
+  <h2>🎬 小提琴的时光旅行</h2>
+  <svg class="stage" id="stage" viewBox="0 0 360 220" role="img" aria-label="小提琴角色穿越六个音乐时代的动画">
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop id="s1" offset="0"/><stop id="s2" offset="1"/></linearGradient>
+      <radialGradient id="glow"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="360" height="220" fill="url(#sky)"/>
+    <g id="stars"></g>
+    <text id="scene" x="290" y="150" font-size="64" text-anchor="middle" opacity=".9"></text>
+    <rect y="170" width="360" height="50" fill="#0005"/>
+    <g id="trail"></g>
+    <g id="hero">
+      <circle r="34" fill="url(#glow)" opacity=".35"/>
+      <g id="vio" transform="rotate(-18)">
+        <rect x="-2" y="-46" width="4" height="26" rx="2" fill="#3b2414"/>
+        <circle cx="0" cy="-48" r="4" fill="#3b2414"/>
+        <path d="M0-22 C-14-22-15-12-9-6 C-15 0-17 14 0 18 C17 14 15 0 9-6 C15-12 14-22 0-22Z" fill="#c8742f" stroke="#7a3f14" stroke-width="1.5"/>
+        <path d="M-4-4 q-2 3 0 6 M4-4 q2 3 0 6" stroke="#3b2414" stroke-width="1.3" fill="none"/>
+        <circle cx="-4" cy="-13" r="2.2" fill="#fff"/><circle cx="4" cy="-13" r="2.2" fill="#fff"/>
+        <circle cx="-4" cy="-13" r="1.1" fill="#222"/><circle cx="4" cy="-13" r="1.1" fill="#222"/>
+        <path d="M-3-8 q3 3 6 0" stroke="#3b2414" stroke-width="1.3" fill="none"/>
+        <ellipse id="chin" cx="-6" cy="14" rx="5" ry="2.5" fill="#222" opacity="0"/>
+      </g>
+      <path id="bow" d="M-30-6 Q-2-10 26 6" stroke="#f3e2c0" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+    </g>
+    <text id="era" x="16" y="34" font-size="22" font-weight="700" fill="#fff"></text>
+    <text id="yrs" x="16" y="56" font-size="13" fill="#fffc"></text>
+    <text id="fact" x="180" y="202" font-size="14" fill="#fff" text-anchor="middle"></text>
+    <g id="dots"></g>
+  </svg>
+  <div class="ctrl"><button id="play">⏸ 暂停</button><button id="replay">↺ 重播</button></div>
+  <p class="note">约 36 秒一轮,自动循环。留意小提琴在每个时代的变化。</p>
+</section>
+
+<details id="storybox">
+  <summary>📖 小故事:小提的时光琴盒</summary>
+  <div class="story"><p>小提今年十岁,刚学会拉 A 大调音阶。一天晚上,他打开琴盒,里面亮起一道金光,“咻”的一声,他掉进了 1720 年的德国科腾。</p><p>宫廷乐师们正在排练。小提发现大家的琴都没有腮托,琴弦是羊肠做的,声音温暖又柔软;琴弓比他的短,握在手里轻飘飘的。一位戴假发的先生递给他一页乐谱:“孩子,试试这首无伴奏的曲子。”后来小提才知道,那位先生就是巴赫。</p><p>金光又一闪,他来到 1806 年 12 月的维也纳。剧院里坐满了买票进场的市民,不再只有贵族。小提琴家克莱门特正在首演贝多芬的小提琴协奏曲,乐队比巴赫时代大了好多。旁边有人小声说:“听说排练时间很少,有些地方差不多是看着谱就拉了!”</p><p>第三道光,把他带到 1831 年的巴黎。歌剧院门口挤满了人,票价贵得吓人,大家都在说同一个名字:帕格尼尼。灯一暗,一个瘦高的身影走上台,琴声快得像闪电,观众又叫又跳。有人嘀咕:“他一定和魔鬼做了交易!”小提却看得很清楚,那是一天又一天的练习。</p><p>“叮”,小提回到了自己的房间。他低头看看自己的小提琴:有腮托、钢做的 E 弦、向内弯的琴弓。原来每一样,都是几百年里一点一点改进来的。</p><p>他架起琴,认真地拉了一遍音阶。这一次,他觉得自己也站在那条长长的时间线上。</p>
+  <p class="note" style="text-indent:0">人物是虚构的;科腾、1806 年贝多芬协奏曲首演、1831 年帕格尼尼巴黎首演、乐器变化都是真实历史。</p></div>
+</details>
+
+<footer>想扩展到更多月份:在数据里按日期加一行即可。<br><a href="./">← 回到每日音乐</a></footer>
+</main>
+<div class="mask" id="mask"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+<script>
+// 音乐时代月历数据。扩展方法:在 DAYS 末尾按日期加一行即可,月份标签会自动出现。
+// 每行:[日期, 时代key, 中文名, 外文名, 年份·国家, 一句话介绍, 代表作, 和小提琴有关]
+const ERAS = {
+  med:{name:"中世纪",years:"约 500–1400",color:"#7aa5d8",icon:"⛪",bg:"音乐主要在教堂里:修士们齐唱单声部的格里高利圣咏,没有和声伴奏。约 1000 年后,僧侣圭多发明了线谱的雏形,旋律终于能准确写下来。宫廷里的吟游诗人唱骑士和爱情的歌。弓弦乐器是维埃尔琴(vielle)和雷贝克琴(rebec),是小提琴的远房祖先。"},
+  ren:{name:"文艺复兴",years:"约 1400–1600",color:"#8fcf8a",icon:"🏰",bg:"几条旋律同时交织的复调成为主流,每个声部都一样重要。1501 年威尼斯印出了第一本用活字印刷的复调乐谱集,音乐开始像书一样流传。贵族和市民在家里一起唱牧歌(madrigal)。16 世纪中期,北意大利的克雷莫纳一带出现了真正的小提琴。"},
+  bar:{name:"巴洛克",years:"约 1600–1750",color:"#f2b84b",icon:"👑",bg:"1600 年前后歌剧诞生,1637 年威尼斯开了第一家卖票的公开歌剧院。作曲家爱用强弱、独奏对合奏的强烈对比,下面总有键盘和低音乐器奏通奏低音。小提琴成了明星乐器,克雷莫纳制琴进入黄金期。那时用羊肠弦、没有腮托,琴弓比现在短、轻。"},
+  cla:{name:"古典主义",years:"约 1750–1820",color:"#f28b82",icon:"🎹",bg:"音乐追求清晰、平衡,像整齐的建筑:奏鸣曲式、交响曲、弦乐四重奏在这时成型。中产阶级兴起,公开售票音乐会越来越多,作曲家不再只为宫廷和教会写作。钢琴慢慢取代了羽管键琴。约 1780 年代,巴黎的图尔特(Tourte)定型了今天这种向内弯的现代琴弓。"},
+  rom:{name:"浪漫主义",years:"约 1820–1900",color:"#c79bf2",icon:"🌹",bg:"音乐变成表达个人情感的语言:更大的乐队、更长的作品、更浓的感情。炫技明星演奏家出现,帕格尼尼和李斯特的音乐会一票难求。各国作曲家把本民族的民歌舞曲写进作品(民族乐派)。约 1820 年施波尔发明了腮托,小提琴的样子更接近你手上的那一把。"},
+  mod:{name:"20 世纪与当代",years:"1900–今天",color:"#5fd4c8",icon:"📻",bg:"作曲家打破传统大小调,试验无调性、新节奏、新音色。录音、收音机、电影让音乐走进每个家庭,爵士、探戈、电影配乐也登上音乐厅。小提琴的 E 弦普遍换成钢弦,后来又有了尼龙等合成芯琴弦。今天的你,也在这个时代里拉琴。"},
+  exam:{name:"考试日",years:"2026",color:"#ffd34d",icon:"🎻",bg:""}
+};
+const DAYS = [
+["2026-11-01","med","希尔德加德","Hildegard von Bingen","1098–1179 · 德国","女修道院院长,写诗、作曲、研究草药医学,留下约 70 首圣歌。","《美德的秩序》Ordo Virtutum","那时还没有小提琴,弓弦乐器是维埃尔琴,琴弓弯得像一把小弓箭。"],
+["2026-11-02","med","佩罗坦","Pérotin","活跃于约 1200 年 · 法国","巴黎圣母院的作曲家,最早写出四声部作品的人之一。","《众人皆看见》Viderunt omnes","低声部拉得很长的持续音,和你练空弦长弓的感觉很像。"],
+["2026-11-03","med","马肖","Guillaume de Machaut","约 1300–1377 · 法国","既是诗人又是作曲家,中世纪最有名的音乐家。","《圣母弥撒》Messe de Nostre Dame","这是现存最早由同一位作曲家写完整套的弥撒,声部像几把琴在对话。"],
+["2026-11-04","med","兰迪尼","Francesco Landini","约 1325–1397 · 意大利","小时候因天花失明,却成了佛罗伦萨最好的管风琴家。","《春天来了》Ecco la primavera","“兰迪尼终止”以他命名:在 A 大调拉 G♯–F♯–A,听听这个古老的结尾。"],
+["2026-11-05","ren","迪费","Guillaume Du Fay","约 1397–1474 · 法国/佛兰德","中世纪走向文艺复兴的关键人物。","《玫瑰新开》Nuper rosarum flores(1436,为佛罗伦萨大教堂穹顶落成而写)","复调里每个声部一样重要,就像弦乐四重奏里四把琴轮流当主角。"],
+["2026-11-06","ren","若斯坎","Josquin des Prez","约 1450–1521 · 佛兰德","文艺复兴最受崇拜的作曲家,作品被收进 1501 年第一本印刷复调乐谱集。","《万福玛利亚…宁静的童贞女》Ave Maria … virgo serena","他去世后几十年,真正的小提琴才在意大利出现。"],
+["2026-11-07","ren","安德烈亚·阿马蒂","Andrea Amati","约 1505–1577 · 意大利克雷莫纳","制琴师,不是作曲家,但没有他就没有小提琴。","为法国国王查理九世做的一批琴(约 1560 年代,琴背画着王室纹章)","现存最早的四弦小提琴出自他手,你手上小提琴的基本形状就是他定下来的。"],
+["2026-11-08","ren","塔利斯","Thomas Tallis","约 1505–1585 · 英国","先后服务四位英国君主,宗教几经变化,他都能保住饭碗。","《寄望于主》Spem in alium(40 个声部)","40 个声部同时唱不同旋律,合奏的关键是:边拉边听别人。"],
+["2026-11-09","ren","帕莱斯特里纳","Giovanni Pierluigi da Palestrina","约 1525–1594 · 意大利","罗马的教会作曲家,旋律平稳优美,后来成为学复调的范本。","《马切鲁斯教皇弥撒》Missa Papae Marcelli","他的旋律多是一步一步走、很少大跳,很适合练连弓的圆滑。"],
+["2026-11-10","ren","伯德","William Byrd","约 1540–1623 · 英国","塔利斯的学生,1575 年两人一起拿到伊丽莎白一世的乐谱印刷专利。","《四声部弥撒》Mass for Four Voices","明天考试:今晚只听一首安静的复调,简单拉一遍音阶,早点睡。"],
+["2026-11-11","exam","ABRSM 五级考试日","ABRSM Grade 5","15:38 · Sunway Putra Hotel","今天不学新东西,你已经准备好了。","自选:你最爱的一首","慢慢吸气、放松肩膀,第一个音拉得饱满就赢了一半。从中世纪到今天,每位大师都上过台、紧张过。加油,Kar Seng!🎉 考完记得好好庆祝。"],
+["2026-11-12","ren","道兰","John Dowland","1563–1626 · 英国","鲁特琴大师,最会写忧伤的歌。","《流吧,我的眼泪》Flow, my tears","他 1604 年的《七首泪》(Lachrimae)写明可以用维奥尔琴或小提琴五声部演奏。"],
+["2026-11-13","ren","乔瓦尼·加布里埃利","Giovanni Gabrieli","约 1554–1612 · 意大利威尼斯","圣马可大教堂的管风琴家,爱把乐队分成几组遥相呼应。","《强与弱奏鸣曲》Sonata pian' e forte(1597)","最早在谱上标出 piano / forte 的作品之一,乐器表里还写明了 violino。"],
+["2026-11-14","bar","蒙特威尔第","Claudio Monteverdi","1567–1643 · 意大利","站在文艺复兴和巴洛克交界的人,歌剧的开路先锋。","歌剧《奥菲欧》L'Orfeo(1607)","他年轻时在曼托瓦宫廷当弦乐手,《奥菲欧》的总谱里就写了小提琴。"],
+["2026-11-15","bar","吕利","Jean-Baptiste Lully","1632–1687 · 意大利出生,法国宫廷","路易十四的宫廷音乐总管,后来指挥时用长杖砸伤了脚,伤口感染而死。","《贵人迷》Le Bourgeois gentilhomme(1670,与莫里哀合作)","他在宫廷训练小提琴乐团;当时的“国王的 24 把小提琴”是欧洲最早的常设弦乐团之一。"],
+["2026-11-16","bar","比伯","Heinrich Ignaz Franz Biber","1644–1704 · 波希米亚/奥地利","萨尔茨堡的小提琴大师,技巧在当时非常前卫。","《玫瑰经奏鸣曲》Rosary Sonatas","几乎每首都要先把琴弦调成不同的音(scordatura),最后一首是无伴奏小提琴帕萨卡利亚。"],
+["2026-11-17","bar","科雷利","Arcangelo Corelli","1653–1713 · 意大利","罗马的小提琴家,他的作品被当成教材用了一百多年;还写了有名的《圣诞协奏曲》。","《福利亚》La Folia(Op.5 No.12,1700)","Op.5 十二首小提琴奏鸣曲,是巴洛克小提琴演奏风格的标准。"],
+["2026-11-18","bar","珀塞尔","Henry Purcell","1659–1695 · 英国","英国巴洛克最伟大的作曲家,只活了 36 岁。","《狄朵与埃涅阿斯》中的《狄朵的哀歌》","1672 年,小提琴家约翰·班尼斯特在伦敦办起了最早的售票公开音乐会。"],
+["2026-11-19","bar","斯特拉迪瓦里","Antonio Stradivari","1644–1737 · 意大利克雷莫纳","史上最有名的制琴师,一生约做了 1100 件乐器,现存约 650 件。","“弥赛亚”小提琴(1716,保存在英国牛津阿什莫林博物馆)","他的琴到今天仍是独奏家的梦想,很多名琴都有自己的名字。"],
+["2026-11-20","bar","维瓦尔第","Antonio Vivaldi","1678–1741 · 意大利威尼斯","“红发神父”,在威尼斯孤女院教女孩们拉琴,她们的乐团闻名欧洲。","《四季》(1725 出版)","写了约 500 首协奏曲,其中二百多首是小提琴协奏曲。"],
+["2026-11-21","bar","泰勒曼","Georg Philipp Telemann","1681–1767 · 德国","史上作品最多的作曲家之一,生前比巴赫还出名。","《餐桌音乐》Tafelmusik(1733)","他写了《12 首无伴奏小提琴幻想曲》(1735),不长,中级程度就能试。"],
+["2026-11-22","bar","拉莫","Jean-Philippe Rameau","1683–1764 · 法国","作曲家兼理论家,1722 年出版《和声论》。","歌剧芭蕾《殷勤的印度》Les Indes galantes(1735)","乐理里“和弦转位 Ib、Ic”的思路,就来自他的和声理论。"],
+["2026-11-23","bar","巴赫","Johann Sebastian Bach","1685–1750 · 德国","巴洛克的集大成者,一生从没离开过德国。","d 小调第二无伴奏小提琴组曲中的《恰空》Chaconne(BWV 1004)","1720 年他写完六首无伴奏小提琴奏鸣曲与组曲;他自己也拉小提琴和中提琴。"],
+["2026-11-24","bar","亨德尔","George Frideric Handel","1685–1759 · 德国出生,定居伦敦","和巴赫同年出生,却在伦敦靠歌剧和清唱剧成名。","《弥赛亚》Messiah(1742 年都柏林首演)","他的 D 大调小提琴奏鸣曲(HWV 371)是学琴的人常拉的曲子。"],
+["2026-11-25","bar","杰米尼亚尼","Francesco Geminiani","1687–1762 · 意大利,后到伦敦","科雷利的学生,把意大利小提琴风格带到英国。","《小提琴演奏艺术》The Art of Playing on the Violin(1751)","这是最早的小提琴教程书之一,他还把老师的《福利亚》改成了大协奏曲。"],
+["2026-11-26","bar","塔尔蒂尼","Giuseppe Tartini","1692–1770 · 意大利","帕多瓦的小提琴大师,自称梦见魔鬼拉琴,醒来写下名曲。","《魔鬼的颤音》奏鸣曲 Devil's Trill","他发现拉双音时会听到第三个低音(“第三音”),可以用来检查双音音准。"],
+["2026-11-27","cla","利奥波德·莫扎特","Leopold Mozart","1719–1787 · 德国/奥地利","莫扎特的爸爸,萨尔茨堡宫廷小提琴手。","《小提琴演奏基础教程》(1756)","这本教程出版的那一年,儿子沃尔夫冈刚好出生。"],
+["2026-11-28","cla","海顿","Joseph Haydn","1732–1809 · 奥地利","“交响曲之父”,在埃斯特哈齐亲王宫廷工作了近 30 年。","《皇帝》四重奏 Op.76 No.3(1797)","《告别》交响曲最后,乐手一个个吹灭蜡烛离场,只剩两把小提琴。"],
+["2026-11-29","cla","博凯里尼","Luigi Boccherini","1743–1805 · 意大利,后到西班牙","大提琴家作曲家,写了一百多首弦乐五重奏。","E 大调弦乐五重奏中的《小步舞曲》(Op.11 No.5)","这首小步舞曲里,小提琴在其他弦乐的轻拨伴奏上唱出优雅的旋律。"],
+["2026-11-30","cla","莫扎特","Wolfgang Amadeus Mozart","1756–1791 · 奥地利","神童,35 岁就去世,却写下 600 多部作品。","G 大调第三小提琴协奏曲 K.216(1775)","他的五首小提琴协奏曲大多写于 1775 年,那时他 19 岁,是萨尔茨堡宫廷乐团首席。"],
+["2026-12-01","cla","维奥蒂","Giovanni Battista Viotti","1755–1824 · 意大利","被称为“现代小提琴演奏之父”,在巴黎和伦敦都很红。","第 22 号 a 小调小提琴协奏曲","他帮助推广了斯特拉迪瓦里的琴和图尔特的新式琴弓。"],
+["2026-12-02","cla","贝多芬","Ludwig van Beethoven","1770–1827 · 德国,后居维也纳","从古典走向浪漫的桥梁,耳聋后仍写出第九交响曲。","D 大调小提琴协奏曲 Op.61(1806)","他写了 10 首小提琴奏鸣曲,其中《春天》Op.24 最受欢迎。"],
+["2026-12-03","cla","克罗采","Rodolphe Kreutzer","1766–1831 · 法国","巴黎音乐学院的小提琴教授,贝多芬把第九小提琴奏鸣曲献给他。","《42 首小提琴练习曲》","据说他从没演奏过《克罗采奏鸣曲》,可他的练习曲至今是小提琴学生必练的。"],
+["2026-12-04","rom","帕格尼尼","Niccolò Paganini","1782–1840 · 意大利","史上最传奇的炫技小提琴家,有人谣传他把灵魂卖给了魔鬼。","24 首随想曲 Op.1(1820 出版)","他最爱的琴叫“大炮”(Il Cannone,瓜奈里 1743 年制),今天保存在热那亚。"],
+["2026-12-05","rom","施波尔","Louis Spohr","1784–1859 · 德国","小提琴家、指挥、作曲家,当年和帕格尼尼齐名。","第 8 号小提琴协奏曲《歌唱场景》","约 1820 年他发明了腮托,今天几乎每把小提琴都装着它。"],
+["2026-12-06","rom","舒伯特","Franz Schubert","1797–1828 · 奥地利","写了 600 多首艺术歌曲,31 岁就去世。","《鳟鱼》五重奏 D.667(1819)","他 1816 年写的三首小提琴小奏鸣曲,很适合中级程度来拉。"],
+["2026-12-07","rom","门德尔松","Felix Mendelssohn","1809–1847 · 德国","1829 年他重新上演巴赫的《马太受难曲》,掀起巴赫复兴。","e 小调小提琴协奏曲 Op.64(1845 首演)","一开头独奏小提琴几乎马上就进来,没有长长的乐队引子。"],
+["2026-12-08","rom","肖邦","Frédéric Chopin","1810–1849 · 波兰,后居巴黎","“钢琴诗人”,作品几乎全是钢琴曲。","降 E 大调夜曲 Op.9 No.2","萨拉萨蒂把这首夜曲改编成了小提琴曲,非常好听。"],
+["2026-12-09","rom","罗伯特·舒曼","Robert Schumann","1810–1856 · 德国","作曲家兼乐评人,最爱写充满幻想的钢琴小品。","《童年情景》中的《梦幻曲》Träumerei(1838)","他 1853 年写的小提琴协奏曲被藏了起来,直到 1937 年才首演。"],
+["2026-12-10","rom","克拉拉·舒曼","Clara Schumann","1819–1896 · 德国","19 世纪最出色的钢琴家之一,也是作曲家。","《三首浪漫曲》Op.22(小提琴与钢琴,1853)","这组曲子献给小提琴家约阿希姆,他们俩常一起演出。"],
+["2026-12-11","rom","李斯特","Franz Liszt","1811–1886 · 匈牙利","钢琴超级巨星,当时的粉丝会为他疯狂。","《钟》La Campanella","1832 年他听了帕格尼尼的音乐会,决心成为“钢琴上的帕格尼尼”。"],
+["2026-12-12","rom","瓦格纳","Richard Wagner","1813–1883 · 德国","为自己的歌剧专门盖了拜罗伊特节日剧院(1876 年启用)。","《女武神的骑行》","首届拜罗伊特音乐节的乐队首席威廉密,就是把巴赫改编成《G 弦上的咏叹调》的人。"],
+["2026-12-13","rom","约阿希姆","Joseph Joachim","1831–1907 · 匈牙利/德国","12 岁就在伦敦演出贝多芬小提琴协奏曲,由门德尔松指挥。","《匈牙利风格小提琴协奏曲》Op.11","勃拉姆斯小提琴协奏曲最常用的华彩乐段,就是他写的。"],
+["2026-12-14","rom","勃拉姆斯","Johannes Brahms","1833–1897 · 德国,后居维也纳","严谨又深情,好友是舒曼夫妇和约阿希姆。","D 大调小提琴协奏曲 Op.77(1879 首演,约阿希姆独奏)","《匈牙利舞曲》第 5 号的小提琴版本,是约阿希姆改编的。"],
+["2026-12-15","rom","圣-桑","Camille Saint-Saëns","1835–1921 · 法国","神童,生前不许出版《动物狂欢节》,只有《天鹅》例外。","《引子与回旋随想曲》Op.28","这首炫技名曲是为萨拉萨蒂写的。"],
+["2026-12-16","rom","维尼亚夫斯基","Henryk Wieniawski","1835–1880 · 波兰","炫技小提琴家,也写了许多小提琴名曲。","第 2 号 d 小调小提琴协奏曲 Op.22","以他命名的国际小提琴比赛 1935 年在华沙首次举办,至今仍是顶级赛事。"],
+["2026-12-17","rom","布鲁赫","Max Bruch","1838–1920 · 德国","一生写了很多作品,却总被人只记住一首,他自己都有点烦。","g 小调第一小提琴协奏曲 Op.26","这首协奏曲是小提琴学生的梦想曲目之一,他还写了《苏格兰幻想曲》。"],
+["2026-12-18","rom","柴可夫斯基","Pyotr Ilyich Tchaikovsky","1840–1893 · 俄国","旋律大师,《天鹅湖》《胡桃夹子》都出自他手。","D 大调小提琴协奏曲 Op.35(1878)","1881 年维也纳首演后,乐评人汉斯立克把它骂得很难听,现在却是最受欢迎的协奏曲之一。"],
+["2026-12-19","rom","德沃夏克","Antonín Dvořák","1841–1904 · 捷克","1892 到 1895 年在美国工作,写出《自新大陆》交响曲。","《幽默曲》Humoresque No.7","他年轻时在布拉格的剧院乐团拉中提琴。"],
+["2026-12-20","rom","萨拉萨蒂","Pablo de Sarasate","1844–1908 · 西班牙","音色甜美的炫技大师,很多作曲家为他写曲子。","《流浪者之歌》Zigeunerweisen(1878)","1904 年他亲自录下了这首曲子,今天还能听到他本人的琴声。"],
+["2026-12-21","rom","格里格","Edvard Grieg","1843–1907 · 挪威","民族乐派代表,把挪威民歌写进音乐。","《培尔·金特》中的《晨景》","挪威有一种民间哈丹格小提琴,琴弦下面还有会共鸣的弦。"],
+["2026-12-22","rom","马斯奈","Jules Massenet","1842–1912 · 法国","19 世纪末巴黎最红的歌剧作曲家之一。","《泰伊思冥想曲》Méditation(1894)","这首是歌剧里的幕间曲,原本就是小提琴独奏。"],
+["2026-12-23","rom","埃尔加","Edward Elgar","1857–1934 · 英国","自学成才,年轻时靠教小提琴谋生。","《爱的礼赞》Salut d'amour(1888,送给未婚妻的礼物)","他的 b 小调小提琴协奏曲 1910 年首演,独奏是克莱斯勒。"],
+["2026-12-24","mod","德彪西","Claude Debussy","1862–1918 · 法国","用色彩般的和声打开 20 世纪的大门,常被称为印象派。","《月光》Clair de lune","他的小提琴奏鸣曲(1917)是他完成的最后一部大型作品。"],
+["2026-12-25","mod","伊萨伊","Eugène Ysaÿe","1858–1931 · 比利时","小提琴大师,学生遍布全世界。","《六首无伴奏小提琴奏鸣曲》Op.27(1923)","听了西盖蒂拉巴赫后写下这六首,每首献给一位小提琴家朋友。"],
+["2026-12-26","mod","西贝柳斯","Jean Sibelius","1865–1957 · 芬兰","芬兰的民族英雄,《芬兰颂》让人热血沸腾。","d 小调小提琴协奏曲 Op.47","他年轻时梦想当小提琴独奏家,这首协奏曲是他唯一的协奏曲。"],
+["2026-12-27","mod","克莱斯勒","Fritz Kreisler","1875–1962 · 奥地利,后居美国","温暖音色的小提琴家,写了很多迷人小品。","《爱的喜悦》Liebesfreud","他曾把自己写的曲子说成是古代大师的作品,1935 年才承认是自己写的。"],
+["2026-12-28","mod","拉威尔","Maurice Ravel","1875–1937 · 法国","配器魔术师,《波莱罗》一个旋律重复到底。","《波莱罗》Boléro(1928)","他的《茨冈》Tzigane(1924)是写给匈牙利小提琴家耶莉·达拉尼的炫技曲。"],
+["2026-12-29","mod","巴托克","Béla Bartók","1881–1945 · 匈牙利","带着留声机下乡,录下了几千首民歌。","《罗马尼亚民间舞曲》","他的《44 首小提琴二重奏》是给学生的,适合找朋友一起拉。"],
+["2026-12-30","mod","斯特拉文斯基","Igor Stravinsky","1882–1971 · 俄国,后居美国","1913 年《春之祭》在巴黎首演,观众当场吵翻天。","《春之祭》The Rite of Spring","在《士兵的故事》(1918)里,士兵把自己的小提琴换给了魔鬼。"],
+["2026-12-31","mod","普罗科菲耶夫","Sergei Prokofiev","1891–1953 · 俄国","调皮又锋利的音乐,很会讲故事。","《彼得与狼》(1936)","故事里的主角彼得,就是由整个弦乐组来扮演的。"],
+["2027-01-01","mod","格什温","George Gershwin","1898–1937 · 美国","把爵士带进音乐厅的人。","《蓝色狂想曲》Rhapsody in Blue(1924)","海菲兹把他的《波吉与贝丝》歌曲改编成了小提琴曲。"],
+["2027-01-02","mod","海菲兹","Jascha Heifetz","1901–1987 · 立陶宛出生,后居美国","被很多人称为 20 世纪最完美的小提琴家,16 岁在卡内基音乐厅登台。","《断奏霍拉舞曲》Hora Staccato(他改编的版本)","他以精准和速度闻名,改编了上百首小提琴曲。"],
+["2027-01-03","mod","肖斯塔科维奇","Dmitri Shostakovich","1906–1975 · 苏联","在政治压力下写出既讽刺又悲伤的音乐。","第七交响曲《列宁格勒》","他的第一小提琴协奏曲写于 1947–48 年,藏到 1955 年才由大卫·奥伊斯特拉赫首演。"],
+["2027-01-04","mod","梅西安","Olivier Messiaen","1908–1992 · 法国","热爱鸟鸣,把鸟的歌声写进音乐。","《时间终结四重奏》(1941 年在战俘营首演)","四件乐器里有小提琴,最后一个乐章是小提琴和钢琴的慢歌。"],
+["2027-01-05","mod","巴伯","Samuel Barber","1910–1981 · 美国","浪漫抒情的美国作曲家。","《弦乐柔板》Adagio for Strings","他的小提琴协奏曲 Op.14 前两个乐章抒情,终乐章快得像停不下来。"],
+["2027-01-06","mod","凯奇","John Cage","1912–1992 · 美国","实验音乐家,问了一个大问题:什么是音乐?","《4′33″》(1952,演奏者一个音也不弹)","拉琴前那一刻的安静,也是音乐的一部分。"],
+["2027-01-07","mod","何占豪 & 陈钢","He Zhanhao & Chen Gang","1959 · 中国上海","上海音乐学院的两位年轻学生,把越剧旋律写成了协奏曲。","小提琴协奏曲《梁山伯与祝英台》(1959,俞丽拿首演)","最有名的华人小提琴协奏曲,里面用了很多模仿戏曲的滑音。"],
+["2027-01-08","mod","皮亚佐拉","Astor Piazzolla","1921–1992 · 阿根廷","把探戈带进音乐厅,发明了“新探戈”。","《自由探戈》Libertango(1974)","他的《布宜诺斯艾利斯的四季》常被拿来和维瓦尔第的《四季》一起演出。"],
+["2027-01-09","mod","佩尔特","Arvo Pärt","1935– · 爱沙尼亚","用极简的“钟鸣”风格写出安静的音乐。","《镜中镜》Spiegel im Spiegel(1978)","原本就是为小提琴和钢琴写的,长音慢弓,练音色的好曲子。"],
+["2027-01-10","mod","约翰·威廉斯","John Williams","1932– · 美国","《星球大战》《哈利·波特》的电影配乐大师。","《辛德勒的名单》主题(1993)","电影里的小提琴独奏是帕尔曼拉的。"],
+["2027-01-11","mod","你自己","Kar Seng","今天 · 马来西亚","考试刚好过去两个月,该你上场了。","你的一首自选曲","录一段 1 分钟的演奏,和 11/11 前的自己比一比。音乐史的下一页,写着你的名字。"]
+];
+
+const QUEUE = {"2026-10-26": "贝多芬 Beethoven · 关系小调 Relative minor", "2026-10-27": "巴赫 J.S. Bach · 和声小调 vs 旋律小调", "2026-10-28": "维瓦尔第 Vivaldi · 五度圈 Circle of fifths(升号调)", "2026-10-29": "莫扎特 Mozart · 五度圈(降号调)与调号记法", "2026-10-30": "帕格尼尼 Paganini · 半音阶 Chromatic scale 的写法", "2026-10-31": "柴可夫斯基 Tchaikovsky(你的生日特别篇🎂) · 速度术语 Allegro / Andante / Adagio…", "2026-11-01": "克拉拉·舒曼 Clara Schumann · 力度与表情术语 dolce, cantabile, espressivo", "2026-11-02": "海顿 Haydn · 音程:纯/大/小 Perfect, major, minor", "2026-11-03": "埃尔加 Elgar · 音程:增/减 Augmented & diminished", "2026-11-04": "门德尔松 Mendelssohn · 终止式听辨:完全终止 vs 不完全终止(Aural)", "2026-11-05": "德沃夏克 Dvořák · 拍号:单拍子 vs 复拍子 6/8", "2026-11-06": "克莱斯勒 Kreisler · 附点、切分与 Aural 拍感(2 拍还是 3 拍)", "2026-11-07": "马斯奈 Massenet · 意大利术语:rit., rall., a tempo, rubato", "2026-11-08": "萨拉萨蒂 Sarasate · 小提琴记号:pizz., arco, sul tasto, con sord.", "2026-11-09": "维瓦尔第 Vivaldi · 考前复习:调号速记小游戏", "2026-11-10": "巴赫 J.S. Bach · 考前放松:深呼吸 + 演奏小技巧(不讲新知识)", "2026-11-11": "🎻 考试日 · 不安排乐理,只给一句鼓励 + 考后庆祝", "2026-11-12": "舒伯特 Schubert · 复合音程 Compound intervals", "2026-11-13": "肖邦 Chopin · 三连音与二连音 Triplets & duplets", "2026-11-14": "帕格尼尼 Paganini · 不规则拍号 5/4、7/8", "2026-11-15": "莫扎特 Mozart · 主和弦/属和弦/下属和弦 I、IV、V", "2026-11-16": "克拉拉·舒曼 Clara Schumann · 上主和弦 II 与和弦标记 Ib、Ic", "2026-11-17": "亨德尔 Handel · 终止式:完全、变格、不完全 Perfect / plagal / imperfect", "2026-11-18": "柴可夫斯基 Tchaikovsky · 移调 Transposition(八度与大二度)", "2026-11-19": "贝多芬 Beethoven · 中音谱号 Alto clef(中提琴用)", "2026-11-20": "布拉姆斯 Brahms · 次中音谱号 Tenor clef", "2026-11-21": "拉威尔 Ravel · 装饰音 Ornaments:颤音、波音、回音", "2026-11-22": "圣桑 Saint-Saëns · 乐器分组:弦乐/木管/铜管/打击", "2026-11-23": "西贝柳斯 Sibelius · 法语/德语术语 lent, vite, langsam, schnell", "2026-11-24": "维瓦尔第 Vivaldi · 旋律写作:乐句的“问”与“答”", "2026-11-25": "莫扎特 Mozart · 大复习:五级乐理知识地图"};
+const TZ = "Asia/Kuala_Lumpur";
+const todayStr = new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+const byDate = {}; DAYS.forEach((d,i)=>byDate[d[0]]=i);
+const months = [...new Set(DAYS.map(d=>d[0].slice(0,7)))];
+const $ = id=>document.getElementById(id);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dayDiff=(a,b)=>Math.round((Date.parse(b)-Date.parse(a))/864e5);
+let curMonth = months.includes(todayStr.slice(0,7)) ? todayStr.slice(0,7) : (todayStr < DAYS[0][0] ? months[0] : months[months.length-1]);
+
+function renderTabs(){
+  $("tabs").innerHTML = months.map(m=>`<button class="${m===curMonth?'on':''}" data-m="${m}">${m.slice(0,4)!=="2026"?m.slice(0,4)+"·":""}${+m.slice(5)} 月</button>`).join("");
+  $("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{curMonth=b.dataset.m;renderTabs();renderGrid();});
+}
+function renderGrid(){
+  const [y,m] = curMonth.split("-").map(Number);
+  const first = new Date(Date.UTC(y,m-1,1)), n = new Date(Date.UTC(y,m,0)).getUTCDate();
+  const lead = (first.getUTCDay()+6)%7;
+  let h = ["一","二","三","四","五","六","日"].map(w=>`<div class="wd">${w}</div>`).join("");
+  for(let i=0;i<lead;i++) h+=`<div class="day empty"></div>`;
+  for(let d=1; d<=n; d++){
+    const ds = `${curMonth}-${String(d).padStart(2,"0")}`, idx = byDate[ds];
+    const cls = ["day"]; if(ds===todayStr) cls.push("today"); if(ds<todayStr) cls.push("past");
+    if(idx===undefined){ h+=`<div class="${cls.join(" ")} empty" style="background:#2a274080"><span class="n">${d}</span><span class="c">下一轮</span></div>`; continue; }
+    const r = DAYS[idx], e = ERAS[r[1]]; if(r[1]==="exam") cls.push("exam");
+    h+=`<button class="${cls.join(" ")}" data-i="${idx}" aria-label="${ds} ${esc(r[2])}"><span class="n">${d}</span><span class="i">${e.icon}</span><span class="c">${esc(r[2])}</span><span class="stripe" style="background:${e.color}"></span></button>`;
+  }
+  $("grid").innerHTML = h;
+  $("grid").querySelectorAll("button.day").forEach(b=>b.onclick=()=>openCard(+b.dataset.i));
+}
+function renderEras(){
+  $("eras").innerHTML = Object.entries(ERAS).filter(([k])=>k!=="exam").map(([k,e])=>`<button style="background:${e.color}" data-k="${k}">${e.icon} ${e.name}</button>`).join("");
+  $("eras").querySelectorAll("button").forEach(b=>b.onclick=()=>openCard(DAYS.findIndex(r=>r[1]===b.dataset.k)));
+}
+function openCard(i){
+  const r = DAYS[i], e = ERAS[r[1]], ds=r[0];
+  const [y,m,d] = ds.split("-");
+  const q = QUEUE[ds];
+  const isExam = r[1]==="exam";
+  $("sheet").innerHTML = `
+   <div class="top"><span class="tag" style="background:${e.color}">${e.icon} ${e.name} · ${e.years}</span><button class="x" id="cx" aria-label="关闭">✕</button></div>
+   <div class="en" style="margin-top:8px">${+m} 月 ${+d} 日${ds===todayStr?" · 今天":""}</div>
+   <h3>${esc(r[2])}</h3><div class="en">${esc(r[3])} · ${esc(r[4])}</div>
+   <p>${esc(r[5])}</p>
+   ${isExam?"":`<div class="sec"><div class="h">🏛 时代背景</div>${esc(e.bg)}</div>`}
+   <div class="sec"><div class="h">🎼 ${isExam?"今天听":"代表作"}</div>${esc(r[6])}</div>
+   <div class="sec vio"><div class="h">🎻 ${isExam?"给你的话":"和小提琴有关"}</div>${esc(r[7])}</div>
+   ${q?`<div class="sec"><div class="h">📅 今天的每日小卡</div>${esc(q)}</div>`:""}
+   <div class="nav"><button id="pv" ${i===0?"disabled":""}>← 前一天</button><button id="nx" ${i===DAYS.length-1?"disabled":""}>后一天 →</button></div>`;
+  $("cx").onclick=closeCard; $("pv").onclick=()=>openCard(i-1); $("nx").onclick=()=>openCard(i+1);
+  $("sheet").scrollTop=0; $("sheet").classList.add("on"); $("mask").classList.add("on");
+  if(ds.slice(0,7)!==curMonth){curMonth=ds.slice(0,7);renderTabs();renderGrid();}
+}
+function closeCard(){ $("sheet").classList.remove("on"); $("mask").classList.remove("on"); }
+$("mask").onclick=closeCard; document.addEventListener("keydown",e=>{if(e.key==="Escape")closeCard();});
+
+function renderBanner(){
+  const b=$("banner"), ti=byDate[todayStr], exam="2026-11-11", left=dayDiff(todayStr,exam);
+  const ex = left>0?`距离 ABRSM 五级考试还有 ${left} 天`:left===0?"今天就是考试日,加油!":"考试已经完成,继续享受音乐 🎉";
+  if(ti!==undefined){ b.innerHTML=`<b>👉 今天:${esc(DAYS[ti][2])}(${ERAS[DAYS[ti][1]].name})</b><small>点我打开今天的小卡 · ${ex}</small>`; b.onclick=()=>openCard(ti); }
+  else if(todayStr<DAYS[0][0]){ b.innerHTML=`<b>月历 ${+DAYS[0][0].slice(5,7)}/${+DAYS[0][0].slice(8)} 开始,还有 ${dayDiff(todayStr,DAYS[0][0])} 天</b><small>先偷看第一张卡,或看下面的动画和故事 · ${ex}</small>`; b.onclick=()=>openCard(0); }
+  else { b.innerHTML=`<b>这一轮已经走完全部时代!</b><small>点我重看最后一张卡</small>`; b.onclick=()=>openCard(DAYS.length-1); }
+}
+renderEras(); renderTabs(); renderGrid(); renderBanner();
+
+/* ---------- 动画 ---------- */
+const SCN=[
+ {k:"med",y:"约 500–1400",s:["#20304f","#7aa5d8"],ic:"⛪",f:"维埃尔琴:小提琴的远房祖先",chin:0,bowc:1},
+ {k:"ren",y:"约 1400–1600",s:["#1f3d2a","#8fcf8a"],ic:"🏰",f:"约 1550 年:真正的小提琴诞生",chin:0,bowc:1},
+ {k:"bar",y:"约 1600–1750",s:["#4a2f10","#f2b84b"],ic:"👑",f:"羊肠弦、没有腮托,巴赫和维瓦尔第",chin:0,bowc:.6},
+ {k:"cla",y:"约 1750–1820",s:["#4a1f22","#f28b82"],ic:"🎹",f:"图尔特定型现代琴弓,音乐会开始卖票",chin:0,bowc:0},
+ {k:"rom",y:"约 1820–1900",s:["#2f1f4f","#c79bf2"],ic:"🌹",f:"施波尔发明腮托,帕格尼尼炫技",chin:1,bowc:0},
+ {k:"mod",y:"1900–今天",s:["#0f3b3b","#5fd4c8"],ic:"📻",f:"钢弦、录音、电影配乐……还有你!",chin:1,bowc:0}];
+const SEG=6000, TOTAL=SEG*SCN.length;
+const stars=$("stars"); for(let i=0;i<22;i++){const c=document.createElementNS("http://www.w3.org/2000/svg","circle");c.setAttribute("cx",Math.random()*360);c.setAttribute("cy",Math.random()*150);c.setAttribute("r",Math.random()*1.4+.4);c.setAttribute("fill","#fff");c.setAttribute("opacity",Math.random()*.6+.2);stars.appendChild(c);}
+const dots=$("dots"); SCN.forEach((s,i)=>{const c=document.createElementNS("http://www.w3.org/2000/svg","circle");c.setAttribute("cx",360-16-(SCN.length-1-i)*14);c.setAttribute("cy",24);c.setAttribute("r",5);c.setAttribute("fill",ERAS[s.k].color);c.setAttribute("stroke","#fff");dots.appendChild(c);});
+const mix=(a,b,t)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));const A=p(a),B=p(b);return "rgb("+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(",")+")";};
+let t0=performance.now(), paused=false, pauseAt=0, lastSeg=-1, notes=[];
+function addNote(x,y,col){const t=document.createElementNS("http://www.w3.org/2000/svg","text");t.textContent=["♪","♫","♩","♬"][Math.floor(Math.random()*4)];t.setAttribute("font-size",14+Math.random()*10);t.setAttribute("fill",col);$("trail").appendChild(t);notes.push({el:t,x,y,vy:-.4-Math.random()*.5,vx:-.6,life:1});}
+function frame(now){
+  if(!paused){
+    const T=(now-t0)%TOTAL, si=Math.floor(T/SEG), p=(T%SEG)/SEG, s=SCN[si], nx=SCN[(si+1)%SCN.length];
+    const k=p>.85?(p-.85)/.15:0;
+    $("s1").setAttribute("stop-color",mix(s.s[0],nx.s[0],k)); $("s2").setAttribute("stop-color",mix(s.s[1],nx.s[1],k));
+    if(si!==lastSeg){lastSeg=si;$("era").textContent=ERAS[s.k].icon+" "+ERAS[s.k].name;$("yrs").textContent=s.y;$("fact").textContent=s.f;$("scene").textContent=s.ic;
+      [...dots.children].forEach((c,i)=>c.setAttribute("r",i===si?7:4));}
+    const fade=p<.1?p/.1:p>.88?Math.max(0,(1-p)/.12):1;
+    ["era","yrs","fact"].forEach(id=>$(id).setAttribute("opacity",fade));
+    $("scene").setAttribute("opacity",.85*fade); $("scene").setAttribute("transform",`translate(0 ${Math.sin(now/600)*3})`);
+    const x=30+p*300, y=140-Math.abs(Math.sin(p*Math.PI*5))*38;
+    $("hero").setAttribute("transform",`translate(${x} ${y})`);
+    const saw=Math.sin(now/140)*14;
+    $("bow").setAttribute("transform",`translate(${saw} ${saw*.2})`);
+    const cy=s.bowc?-6-14*s.bowc:4; /* 老式弓向外弯,现代弓向内弯 */
+    $("bow").setAttribute("d",`M-30-6 Q-2 ${cy} 26 6`);
+    $("chin").setAttribute("opacity",s.chin);
+    if(Math.random()<.12) addNote(x-10,y-20,ERAS[s.k].color);
+  }
+  notes=notes.filter(n=>{n.x+=n.vx;n.y+=n.vy;n.life-=.012;n.el.setAttribute("x",n.x);n.el.setAttribute("y",n.y);n.el.setAttribute("opacity",Math.max(0,n.life));if(n.life<=0){n.el.remove();return false;}return true;});
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+$("play").onclick=()=>{ if(paused){t0+=performance.now()-pauseAt;paused=false;$("play").textContent="⏸ 暂停";} else {paused=true;pauseAt=performance.now();$("play").textContent="▶ 继续";} };
+$("replay").onclick=()=>{t0=performance.now();lastSeg=-1;paused=false;$("play").textContent="⏸ 暂停";};
+</script></body></html>
